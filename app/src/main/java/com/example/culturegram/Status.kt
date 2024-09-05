@@ -113,8 +113,8 @@ private object Database{
     @Composable
     fun ListImage(i:List<String>){
         var image:Int = 0
-        if (i[1] == "1"){ image = R.drawable.image2 }
-        else{ image = R.drawable.image3 }
+        if (i[1] == "1"){ image = R.drawable.mountain_00003 }
+        else{ image = R.drawable.autumn_leaves_00014 }
         Image(
             painter = painterResource(id = image),
             contentDescription = null,
