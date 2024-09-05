@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -88,16 +90,29 @@ class MainScreen() {
                 .padding(top = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Button(onClick = { navController.navigate("camera") }) {
-                Text("camera")
-            }
-            Button(onClick = { onButtonClick("shorts") }) {
-                Text("shorts")
-            }
-            Button(onClick = { onButtonClick("status") }) {
-                Text("status")
+            // カメラアイコン
+            IconButton(onClick = { navController.navigate("camera") }) {
+                Icon(
+                    imageVector = Icons.Default.CameraAlt,  // カメラアイコン
+                    contentDescription = "Camera Icon"
+                )
             }
 
+            // ショートアイコン
+            IconButton(onClick = { onButtonClick("shorts") }) {
+                Icon(
+                    imageVector = Icons.Default.Folder,  // ショートアイコン
+                    contentDescription = "Shorts Icon"
+                )
+            }
+
+            // プロフィールアイコン
+            IconButton(onClick = { onButtonClick("status") }) {
+                Icon(
+                    imageVector = Icons.Default.Person,  // プロフィールアイコン
+                    contentDescription = "Status Icon"
+                )
+            }
         }
     }
 }
