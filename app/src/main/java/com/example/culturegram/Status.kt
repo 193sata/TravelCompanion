@@ -2,19 +2,26 @@ package com.example.culturegram
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-class Status() {
+class Status{
     @Composable
     fun Content() {
         val sample:List<List<String>> = listOf(listOf("法隆寺地域の仏教建造物","0"),
@@ -38,12 +45,27 @@ class Status() {
             listOf("百舌鳥・古市古墳群‐古代日本の墳墓群‐","0"),
             listOf("北海道・北東北の縄文遺跡群","1"),
             listOf("佐渡島の金山","0"))
-        // 画面中央に"shorts"を表示する
         Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.LightGray)
         ) {
-            Text(text = "status")
+            Column(modifier = Modifier.fillMaxSize()){
+                Row {
+                    Database.UserChara()
+                    Database.Ratio(sample = sample)
+                }
+                HorizontalDivider(thickness = 24.dp)
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    for (i in sample){
+                        Row(modifier = Modifier.padding(10.dp)){
+                            Database.ListImage(i = i)
+                            Database.ListCheck(i = i)
+                        }
+                        HorizontalDivider(modifier = Modifier.padding(5.dp))
+                    }
+                }
+            }
         }
     }
 }
@@ -52,10 +74,10 @@ private object Database{
     @Composable
     fun UserChara() {
         Image(
-            painter = painterResource(id = R.drawable.image1),
+            painter = painterResource(id = R.drawable.android_logo),
             contentDescription = null,
             modifier = Modifier
-                .size(400.dp, 400.dp)
+                .size(200.dp, 200.dp)
                 .padding(horizontal = 24.dp, vertical = 5.dp)
         )
     }
@@ -70,30 +92,33 @@ private object Database{
         }
         Text(
             text = "$sum/26",
-            fontSize = 48.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = 70.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 50.dp)
         )
     }
 
     @Composable
-    fun ListCheck(sample:List<List<String>>,i:List<String>){
+    fun ListCheck(i:List<String>){
         var check:String = ""
-            if (i[1] == "1"){ check = "〇" }
-            else{ check = "ｘ"}
-            Text(
-                text = i[0] + " : " + check,
-                fontSize = 16.sp
-            )
-        }
+        if (i[1] == "1"){ check = "〇" }
+        else{ check = "ｘ"}
+        Text(
+            text = i[0] + " : " + check,
+            fontSize = 24.sp
+        )
+    }
     //設計途中
     @Composable
     fun ListImage(i:List<String>){
         var image:Int = 0
-        if (i[1] == "1"){ image = R.drawable.t }
-        else{ image = R.drawable.f }
+        if (i[1] == "1"){ image = R.drawable.image2 }
+        else{ image = R.drawable.image3 }
         Image(
             painter = painterResource(id = image),
-            contentDescription = null
+            contentDescription = null,
+            modifier = Modifier.size(50.dp,60.dp)
         )
     }
 }
