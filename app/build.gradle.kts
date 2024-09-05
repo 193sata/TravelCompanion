@@ -75,5 +75,6 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.extensions)
+    implementation(libs.coil.compose)  // Coilの依存関係を追加
 
 }
