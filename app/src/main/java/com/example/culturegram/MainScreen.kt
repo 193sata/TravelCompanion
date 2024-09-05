@@ -11,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,7 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
-class MainScreen() {
+
+class MainScreen {
     @Composable
     fun Content(navController: NavController) {
         // メインコンテンツを動的に変更するための変数
@@ -52,6 +55,10 @@ class MainScreen() {
             // フッター
             Footer(navController) { button ->
                 when (button) {
+                    "map" -> {
+                        // ChatScreenのコンテンツを表示
+                        contentState.value = { Map().Content() }
+                    }
                     "shorts" -> {
                         // ChatScreenのコンテンツを表示
                         contentState.value = { Shorts().Content() }
@@ -95,6 +102,14 @@ class MainScreen() {
                 Icon(
                     imageVector = Icons.Default.CameraAlt,  // カメラアイコン
                     contentDescription = "Camera Icon"
+                )
+            }
+
+            // マップアイコン
+            IconButton(onClick = { onButtonClick("map") }) {
+                Icon(
+                    imageVector = Icons.Default.Place,  // マップアイコン
+                    contentDescription = "Map Icon"
                 )
             }
 

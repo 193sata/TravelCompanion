@@ -14,6 +14,9 @@ cameraX = "1.2.3"  # CameraXのバージョン
 coil = "2.1.0"
 compose-material-icons-extended = "1.5.1"  # ライブラリのバージョンを追加
 
+maps-compose = "2.7.1"
+playServicesMaps = "19.0.0" # google map
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,6 +44,8 @@ androidx-camera-extensions = { group = "androidx.camera", name = "camera-extensi
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose-material-icons-extended"}
+google-maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "maps-compose" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
