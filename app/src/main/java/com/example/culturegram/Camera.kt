@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import coil.compose.AsyncImage
+//import coil.compose.AsyncImage
 import java.io.File
 //import java.util.concurrent.ExecutorService
 //import java.util.concurrent.Executors
