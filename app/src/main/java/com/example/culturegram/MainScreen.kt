@@ -34,9 +34,9 @@ class MainScreen {
             val iconColor = if (backgroundColor.value == Color.White) Color.Black else Color.White
 
             // ヘッダー
-            Header(iconColor) { buttonText ->
-                contentState.value = { Text("Header Button Clicked: $buttonText") }
-            }
+            //Header(iconColor) { buttonText ->
+            //    contentState.value = { Text("Header Button Clicked: $buttonText") }
+            //}
 
             // メインコンテンツ
             Box(
@@ -69,7 +69,7 @@ class MainScreen {
         }
     }
 
-    @Composable
+    /*@Composable
     fun Header(iconColor: Color, onButtonClick: (String) -> Unit) {
         Row(
             modifier = Modifier
@@ -85,7 +85,7 @@ class MainScreen {
                 )
             }
         }
-    }
+    }*/
 
     @Composable
     fun Footer(navController: NavController, iconColor: Color, onButtonClick: (String) -> Unit) {
