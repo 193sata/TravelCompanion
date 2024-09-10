@@ -13,6 +13,8 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview as CameraPreview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
@@ -122,33 +124,45 @@ class Camera {
                 }
             )
 
-            // 写真撮影ボタンをカメラプレビューの上に重ねる
-            Button(
-                onClick = {
-                    // ファイル名にfileNameBaseを使用し、ユニークなファイル名を作成
-                    val photoFile = createUniqueFile(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!, fileNameBase)
-                    val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-                    imageCapture?.takePicture(
-                        outputOptions, ContextCompat.getMainExecutor(context),
-                        object : ImageCapture.OnImageSavedCallback {
-                            override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                                onImageCaptured(Uri.fromFile(photoFile))
-                            }
-
-                            override fun onError(exc: ImageCaptureException) {
-                                onError(exc.message ?: "Image capture failed")
-                            }
-                        }
-                    )
-                },
+            // 画面下部に半透明の黒背景を追加し、ボタンを目立たせる
+            Box(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)  // alignをBox内で使用
-                    .padding(16.dp)
-                    .size(70.dp),  // ボタンのサイズを指定
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)  // ボタンを白くする
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .background(Color.Black.copy(alpha = 0.5f)) // 半透明の黒背景
             ) {
-                Text(text = " ")
+                // 写真撮影ボタンをカメラプレビューの上に重ねる
+                Button(
+                    onClick = {
+                        // ファイル名にfileNameBaseを使用し、ユニークなファイル名を作成
+                        val photoFile = createUniqueFile(
+                            context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!,
+                            fileNameBase
+                        )
+                        val outputOptions =
+                            ImageCapture.OutputFileOptions.Builder(photoFile).build()
+                        imageCapture?.takePicture(
+                            outputOptions, ContextCompat.getMainExecutor(context),
+                            object : ImageCapture.OnImageSavedCallback {
+                                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                                    onImageCaptured(Uri.fromFile(photoFile))
+                                }
+
+                                override fun onError(exc: ImageCaptureException) {
+                                    onError(exc.message ?: "Image capture failed")
+                                }
+                            }
+                        )
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)  // alignをBox内で使用
+                        .padding(16.dp)
+                        .size(70.dp),  // ボタンのサイズを指定
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)  // ボタンを白くする
+                ) {
+                }
             }
         }
     }
