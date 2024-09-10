@@ -15,6 +15,7 @@ import androidx.camera.core.Preview as CameraPreview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
@@ -27,14 +28,17 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
 import java.io.File
 
 class Camera {
 
     @Composable
-    fun Content(s: String) {
+    fun Content(s: String, navController: NavController) {
         val context = LocalContext.current
         var imageUri by remember { mutableStateOf<Uri?>(null) }
         var hasCameraPermission by remember { mutableStateOf(false) }
@@ -76,6 +80,24 @@ class Camera {
                     },
                     fileNameBase = s // sを渡してファイル名に使用する
                 )
+                // 左上に黒背景の丸ボタン（×ボタン）を配置し、クリックで前の画面に戻る
+                Box(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(40.dp)
+                        .background(Color.Black.copy(alpha = 0.5f), CircleShape)  // 半透明の黒い丸背景
+                        .clickable {
+                            navController.popBackStack()  // 前の画面に戻る
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "×",
+                        color = Color.White,
+                        fontSize = 24.sp,  // バツのサイズを大きく
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         } else {
             // パーミッションが拒否された場合のメッセージや代替UI

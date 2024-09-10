@@ -13,7 +13,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.culturegram.ui.theme.CultureGramTheme
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +39,7 @@ class MainActivity : ComponentActivity() {
                         ) { backStackEntry ->
                             val heritageName = backStackEntry.arguments?.getString("heritageName")
                             val camera = Camera()
-                            camera.Content(heritageName ?: "Unknown")   // CameraのContentにheritageNameを渡す
+                            camera.Content(heritageName ?: "Unknown", navController)   // CameraのContentにheritageNameとnavControllerを渡す
                         }
                     }
                 }
@@ -48,4 +47,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
