@@ -2,6 +2,7 @@ package com.example.culturegram
 
 import android.content.Context
 import android.os.FileObserver
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
@@ -30,78 +31,55 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStreamReader
 
-//class MyFileObserver(
-//    private val context: Context,
-//    private val filename: String,
-//    private val onFileChanged: () -> Unit
-//) : FileObserver(File(context.filesDir, filename).absolutePath, MODIFY) {
-//    override fun onEvent(event: Int, path: String?) {
-//        if (event == MODIFY) {
-//            onFileChanged()
-//        }
-//    }
-//}
+class MyFileObserver(
+    private val context: Context,
+    private val filename: String,
+    private val onFileChanged: () -> Unit
+) : FileObserver(File(context.filesDir, filename).absolutePath, CLOSE_WRITE) {
+    override fun onEvent(event: Int, path: String?) {
+        Log.d("MyFileObserver", "Event: $event, Path: $path, AbsolutePath: ${File(context.filesDir,filename).absolutePath}")
+        if (event == 8) {
+            onFileChanged()
+        }
+    }
+}
 
 class Status {
     @Composable
     fun Content(){
         val context = LocalContext.current
-        LaunchedEffect(Unit) {
-            saveCsvFileToInternalStorage(
-                context = context,
-                data = readCsvFile(context),
-                fileName = "internalCsvFile"
-            ) }
         var heritageCsv by remember { mutableStateOf(loadCsvFileFromInternalStorage(context,"internalCsvFile")) }
+        lateinit var fileObserver: MyFileObserver
+        val filename = "internalCsvFile"
+        fileObserver = MyFileObserver(context, filename) {
+            fileObserver.stopWatching()
+            heritageCsv = loadCsvFileFromInternalStorage(context, filename)
+            fileObserver.startWatching()
+        }
 
+fileObserver.startWatching()
         LaunchedEffect(Unit) {
-            while (true) {
-                delay(3000)
-                println("3 seconds")
-                heritageCsv = loadCsvFileFromInternalStorage(context,"internalCsvFile")
+            if (heritageCsv[0][0].length <= 5) {
+                fileObserver.startWatching()
+                saveCsvFileToInternalStorage(
+                    context = context,
+                    data = readCsvFile(context),
+                    fileName = "internalCsvFile"
+                )
             }
         }
-//        lateinit var fileObserver: MyFileObserver
-//        val filename = "internalCsvFile"
-//        fileObserver = MyFileObserver(context, filename) {
-//            heritageCsv = loadCsvFileFromInternalStorage(context,filename)
-//        }
-//        fileObserver.startWatching()
-//        override fun onDestroy() {
-//            super.onDestroy()
+        //読み込んだheritageCsvの、内部ストレージファイルのinternalCsvFileの初期状態の設定
+        //バグあり
+
+//        fun onDestroy() {
 //            // 監視を停止
 //            fileObserver.stopWatching()
 //        }
-
-        val sample: List<List<String>> = listOf(
-            listOf("法隆寺地域の仏教建造物", "0"),
-            listOf("姫路城", "1"),
-            listOf("古都京都の文化財", "0"),
-            listOf("白川郷・五箇山の合掌造り集落", "1"),
-            listOf("原爆ドーム", "0"),
-            listOf("厳島神社", "1"),
-            listOf("古都奈良の文化財", "0"),
-            listOf("日光の社寺", "1"),
-            listOf("琉球王国のグスク及び関連遺産群", "0"),
-            listOf("紀伊山地の霊場と参詣道", "1"),
-            listOf("石見銀山遺跡とその文化的景観", "0"),
-            listOf("平泉‐仏国土（浄土）を表す建築・庭園及び考古学的遺跡群‐", "1"),
-            listOf("富士山‐信仰の対象と芸術の源泉‐", "0"),
-            listOf("富岡製糸場と絹産業遺産群", "1"),
-            listOf("明治日本の産業革命遺産", "0"),
-            listOf("ル・コルビュジエの建築作品‐近代建築運動への顕著な貢献‐", "1"),
-            listOf("「神宿る島」宗像・沖ノ島と関連遺産群", "0"),
-            listOf("長崎と天草地方の潜伏キリシタン関連遺産", "1"),
-            listOf("百舌鳥・古市古墳群‐古代日本の墳墓群‐", "0"),
-            listOf("北海道・北東北の縄文遺跡群", "1"),
-            listOf("佐渡島の金山", "0")
-        )
 
         Box(
             modifier = Modifier.fillMaxSize()
@@ -150,7 +128,7 @@ class Status {
             painter = painterResource(id = R.drawable.android_logo),
             contentDescription = null,
             modifier = Modifier
-                .size(200.dp, 200.dp)
+                .size(180.dp, 180.dp)
                 .padding(horizontal = 24.dp, vertical = 5.dp)
         )
     }
@@ -165,7 +143,7 @@ class Status {
         }
         Text(
             text = "$sum/26",
-            fontSize = 50.sp,
+            fontSize = 60.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 50.dp)
@@ -206,14 +184,16 @@ class Status {
         )
     }
 
-
     private fun saveCsvFileToInternalStorage(
         context: Context,
         data: List<List<String>>,
         fileName: String
     ) {
         val file = File(context.filesDir, fileName)
-        file.delete()
+//            FileOutputStream(file,false).use{ outputStream ->
+//                outputStream.write(ByteArray(0))
+//            }
+
         FileOutputStream(file,false).use { outputStream ->
             val csvContent = data.joinToString("\n") { it.joinToString(",") }
             outputStream.write(csvContent.toByteArray())
@@ -229,7 +209,7 @@ class Status {
             // ファイルが存在しない場合は空のリストを返すか、新しいファイルを作成するなどの処理を行う
             return mutableListOf()
         }
-        return file.readLines().take(21)
+        return file.readLines()
             .map { it.split(",").map(String::trim).toMutableList() }
             .toMutableList()
     }
