@@ -10,12 +10,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.culturegram.ui.theme.CultureGramTheme
 
 class MainActivity : ComponentActivity() {
@@ -29,7 +28,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "main", // 最初に表示する画面をMainScreenに変更
+                        startDestination = "main", // 最初に表示する画面をMainScreenに設定
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         // MainScreen
@@ -37,29 +36,21 @@ class MainActivity : ComponentActivity() {
                             val mainScreen = MainScreen()
                             mainScreen.Content(navController)  // MainScreenのContentを表示
                         }
-                        // Camera
-                        composable("camera") {
+                        // Camera with heritageName as an argument
+                        composable(
+                            route = "camera/{heritageName}",
+                            arguments = listOf(navArgument("heritageName") { defaultValue = "Unknown" })
+                        ) { backStackEntry ->
+                            val heritageName = backStackEntry.arguments?.getString("heritageName")
                             val camera = Camera()
-                            camera.Content()   // cameraのContentを表示
+                            camera.Content(heritageName ?: "Unknown")   // CameraのContentにheritageNameを渡す
                         }
-                        // Shorts
-                        /*composable("shorts") {
-                            val shorts = Shorts()
-                            shorts.Content()  // shortsのContentを表示
-                        }
-                        // Status
-                        composable("status") {
-                            val status = Status()
-                            status.Content()  // statusのContentを表示
-                        }*/
-
                     }
                 }
             }
         }
     }
 }
-
 @Composable
 fun GreetingScreen(navController: NavController) {
     // ボタンを押すとMainScreenに遷移する

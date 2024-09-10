@@ -83,8 +83,8 @@ class Map {
           title = heritage.name,
           icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW),
           onClick = {
-            // マーカーをタップしたときに"camera"画面に遷移
-            navController.navigate("camera")
+            // マーカーをタップしたときに"camera"画面に遷移し、heritage.nameを渡す
+            navController.navigate("camera/${heritage.name}")
             true
           }
         )

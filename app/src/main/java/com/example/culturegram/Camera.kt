@@ -31,7 +31,7 @@ import java.io.File
 class Camera {
 
     @Composable
-    fun Content() {
+    fun Content(s: String) {
         val context = LocalContext.current
         var imageUri by remember { mutableStateOf<Uri?>(null) }
         var hasCameraPermission by remember { mutableStateOf(false) }
