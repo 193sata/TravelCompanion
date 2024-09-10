@@ -1,5 +1,6 @@
 package com.example.culturegram
 
+import GetImages
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
@@ -14,23 +15,32 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import kotlin.math.abs
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-
+import coil.compose.rememberImagePainter
+import kotlin.math.abs
 
 class Shorts {
     @Composable
     fun Content() {
-        val images = listOf(
-            R.drawable.castle,
-            R.drawable.maiko,
-            R.drawable.zyoumon,
-            R.drawable.mountain,
-            R.drawable.river
-        )
+        val context = LocalContext.current
+
+        // GetImagesクラスのContentメソッドを呼び出して画像のリストを取得
+        val getImages = GetImages()
+        val images = getImages.Content(context)
+        println("images")
+        println(images)
+
+        // 表示する画像が存在しない場合に対応
+        if (images.isEmpty()) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                Text("No images found.")
+            }
+            return
+        }
 
         var currentIndex by remember { mutableStateOf(0) }
         var nextIndex by remember { mutableStateOf((currentIndex + 1) % images.size) }
@@ -44,7 +54,6 @@ class Shorts {
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragEnd = {
-                            // 指を離したときに次の画像に切り替え
                             if (dragOffset > screenHeight / 2) {
                                 currentIndex = if (currentIndex > 0) currentIndex - 1 else images.size - 1
                             } else if (dragOffset < -screenHeight / 2) {
@@ -57,7 +66,6 @@ class Shorts {
                             dragOffset += dragAmount.y  // ドラッグ量をオフセットに反映
 
                             if (!directionLocked) {
-                                // ドラッグの方向に基づいて次の画像を決定（スクロール方向がロックされるまで一度だけ実行）
                                 nextIndex = if (dragAmount.y > 0) {
                                     if (currentIndex > 0) currentIndex - 1 else images.size - 1
                                 } else {
@@ -70,9 +78,9 @@ class Shorts {
                 },
             contentAlignment = Alignment.Center
         ) {
-            // 現在の画像を表示（指の動きに合わせて移動）
+            // 現在の画像を表示
             Image(
-                painter = painterResource(id = images[currentIndex]),
+                painter = rememberImagePainter(data = images[currentIndex]),  // 画像パスを指定
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
@@ -84,9 +92,9 @@ class Shorts {
                 contentScale = ContentScale.Crop
             )
 
-            // 次の画像を表示（指の動きに合わせて反対側から移動）
+            // 次の画像を表示
             Image(
-                painter = painterResource(id = images[nextIndex]),
+                painter = rememberImagePainter(data = images[nextIndex]),  // 画像パスを指定
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()

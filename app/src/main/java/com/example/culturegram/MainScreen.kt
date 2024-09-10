@@ -96,13 +96,13 @@ class MainScreen {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // カメラアイコン
-            IconButton(onClick = { navController.navigate("camera") }) {
+            /*IconButton(onClick = { navController.navigate("camera") }) {
                 Icon(
                     imageVector = Icons.Default.CameraAlt,
                     contentDescription = "Camera Icon",
                     tint = iconColor  // 動的にアイコンの色を設定
                 )
-            }
+            }*/
 
             // マップアイコン
             IconButton(onClick = { onButtonClick("map") }) {
