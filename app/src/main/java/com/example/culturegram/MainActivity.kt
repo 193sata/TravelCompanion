@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
                             camera.Content()   // cameraのContentを表示
                         }
                         // Shorts
-                        composable("shorts") {
+                        /*composable("shorts") {
                             val shorts = Shorts()
                             shorts.Content()  // shortsのContentを表示
                         }
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
                         composable("status") {
                             val status = Status()
                             status.Content()  // statusのContentを表示
-                        }
+                        }*/
 
                     }
                 }

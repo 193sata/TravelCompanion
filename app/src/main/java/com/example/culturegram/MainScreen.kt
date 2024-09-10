@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -56,8 +55,9 @@ class MainScreen {
             Footer(navController) { button ->
                 when (button) {
                     "map" -> {
+                        val map = Map()
                         // ChatScreenのコンテンツを表示
-                        contentState.value = { Map().Content() }
+                        contentState.value = { map.Content(navController) }
                     }
                     "shorts" -> {
                         // ChatScreenのコンテンツを表示

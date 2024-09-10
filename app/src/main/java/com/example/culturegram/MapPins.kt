@@ -34,7 +34,12 @@ class MapPins {
         return earthRadius * c
     }
 
-    public fun getHeritages(distanceLimit: Double):MutableList<Heritage>{
+
+    public fun getHeritages():MutableList<Heritage>{
+        return heritages
+    }
+
+    public fun getHeritagesInside(distanceLimit: Double):MutableList<Heritage>{
         val result: MutableList<Heritage> = mutableListOf()
         for(i in heritages){
             if(i.distance <= distanceLimit) result.add(i)
@@ -47,9 +52,6 @@ class MapPins {
         try {
             // assetsフォルダ内のdata.csvファイルを開く
             val inputStream = context.assets.open("csvData.csv")
-//            val inputStream = context.resources.openRawResource(R.raw.shelters_kuma)
-//            val reader = BufferedReader(InputStreamReader(inputStream))
-            //val inputStream = context.resources.openRawResource(R.raw.ramen_shop_data)
             val reader = BufferedReader(InputStreamReader(inputStream))
             val header = reader.readLine() // ヘッダーを取得
             val headerTokens = header.split(",")
@@ -64,14 +66,6 @@ class MapPins {
             while (reader.readLine().also { line = it } != null) {
                 // CSVファイルの各行をログに出力
                 Log.d("CSVReader", line.toString())
-
-                // 各列のデータを取得したい場合
-//                val columns = line?.split(",")
-//                val tmpName = columns?.get(0).toString()
-//                val tmpLatitude = columns?.get(1).toString().toDouble()
-//                val tmpLongitude = columns?.get(2).toString().toDouble()
-//                val tmpType = columns?.get(3).toString()
-//                val tmpReview = columns?.get(4).toString().toInt()
 
                 val tokens = line!!.split(",")
                 val name = tokens.getOrNull(nameIndex)
