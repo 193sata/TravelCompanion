@@ -1,43 +1,40 @@
 package com.example.culturegram
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
-
 class MainScreen {
+
     @Composable
     fun Content(navController: NavController) {
+        // 背景色を動的に変更するための状態
+        val backgroundColor = remember { mutableStateOf(Color.White) }
+
         // メインコンテンツを動的に変更するための変数
         val contentState = remember { mutableStateOf<@Composable () -> Unit>({ Map().Content(navController) }) }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .background(backgroundColor.value)  // 動的に背景色を設定
+
         ) {
+            // 背景色に応じてアイコンの色を切り替える
+            val iconColor = if (backgroundColor.value == Color.White) Color.Black else Color.White
+
             // ヘッダー
-            Header { buttonText ->
+            Header(iconColor) { buttonText ->
                 contentState.value = { Text("Header Button Clicked: $buttonText") }
             }
 
@@ -52,20 +49,20 @@ class MainScreen {
             }
 
             // フッター
-            Footer(navController) { button ->
+            Footer(navController, iconColor) { button ->
                 when (button) {
                     "map" -> {
                         val map = Map()
-                        // ChatScreenのコンテンツを表示
                         contentState.value = { map.Content(navController) }
+                        backgroundColor.value = Color.White // Map画面では背景を白に
                     }
                     "shorts" -> {
-                        // ChatScreenのコンテンツを表示
                         contentState.value = { Shorts().Content() }
+                        backgroundColor.value = Color.Black // Shorts画面では背景を黒に
                     }
                     "status" -> {
-                        // ChatScreenのコンテンツを表示
                         contentState.value = { Status().Content() }
+                        backgroundColor.value = Color.White // Status画面では背景を白に
                     }
                 }
             }
@@ -73,59 +70,64 @@ class MainScreen {
     }
 
     @Composable
-    fun Header(onButtonClick: (String) -> Unit) {
+    fun Header(iconColor: Color, onButtonClick: (String) -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.End // 右端に配置
+            horizontalArrangement = Arrangement.End
         ) {
             IconButton(onClick = { onButtonClick("Settings") }) {
                 Icon(
-                    imageVector = Icons.Default.Settings, // Material Iconsの設定マークを使用
-                    contentDescription = "Settings Icon"
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings Icon",
+                    tint = iconColor  // アイコンの色を動的に設定
                 )
             }
         }
     }
 
     @Composable
-    fun Footer(navController: NavController, onButtonClick: (String) -> Unit) {
+    fun Footer(navController: NavController, iconColor: Color, onButtonClick: (String) -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(vertical = 8.dp, horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // カメラアイコン
             IconButton(onClick = { navController.navigate("camera") }) {
                 Icon(
-                    imageVector = Icons.Default.CameraAlt,  // カメラアイコン
-                    contentDescription = "Camera Icon"
+                    imageVector = Icons.Default.CameraAlt,
+                    contentDescription = "Camera Icon",
+                    tint = iconColor  // 動的にアイコンの色を設定
                 )
             }
 
             // マップアイコン
             IconButton(onClick = { onButtonClick("map") }) {
                 Icon(
-                    imageVector = Icons.Default.Place,  // マップアイコン
-                    contentDescription = "Map Icon"
+                    imageVector = Icons.Default.Place,
+                    contentDescription = "Map Icon",
+                    tint = iconColor  // 動的にアイコンの色を設定
                 )
             }
 
             // ショートアイコン
             IconButton(onClick = { onButtonClick("shorts") }) {
                 Icon(
-                    imageVector = Icons.Default.Folder,  // ショートアイコン
-                    contentDescription = "Shorts Icon"
+                    imageVector = Icons.Default.Folder,
+                    contentDescription = "Shorts Icon",
+                    tint = iconColor  // 動的にアイコンの色を設定
                 )
             }
 
             // プロフィールアイコン
             IconButton(onClick = { onButtonClick("status") }) {
                 Icon(
-                    imageVector = Icons.Default.Person,  // プロフィールアイコン
-                    contentDescription = "Status Icon"
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Status Icon",
+                    tint = iconColor  // 動的にアイコンの色を設定
                 )
             }
         }
