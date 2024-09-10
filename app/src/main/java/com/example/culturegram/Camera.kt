@@ -3,6 +3,7 @@ package com.example.culturegram
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -62,7 +63,7 @@ class Camera {
         if (hasCameraPermission) {
             // パーミッションが許可された場合、カメラプレビューと撮影機能を表示
             Box(modifier = Modifier.fillMaxSize()) {
-                // カメラプレビューの表示
+                // カメラプレビューの表示、sを渡す
                 CameraPreview(
                     onImageCaptured = { uri ->
                         imageUri = uri
@@ -70,7 +71,8 @@ class Camera {
                     },
                     onError = { message ->
                         Toast.makeText(context, "Error: $message", Toast.LENGTH_SHORT).show()
-                    }
+                    },
+                    fileNameBase = s // sを渡してファイル名に使用する
                 )
             }
         } else {
@@ -84,7 +86,8 @@ class Camera {
     @Composable
     fun CameraPreview(
         onImageCaptured: (Uri) -> Unit,
-        onError: (String) -> Unit
+        onError: (String) -> Unit,
+        fileNameBase: String // 追加: ファイル名のベース
     ) {
         val context = LocalContext.current
         val lifecycleOwner = LocalLifecycleOwner.current
@@ -122,7 +125,8 @@ class Camera {
             // 写真撮影ボタンをカメラプレビューの上に重ねる
             Button(
                 onClick = {
-                    val photoFile = File(context.externalCacheDir, "${System.currentTimeMillis()}.jpg")
+                    // ファイル名にfileNameBaseを使用し、ユニークなファイル名を作成
+                    val photoFile = createUniqueFile(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!, fileNameBase)
                     val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
                     imageCapture?.takePicture(
                         outputOptions, ContextCompat.getMainExecutor(context),
@@ -147,5 +151,16 @@ class Camera {
                 Text(text = " ")
             }
         }
+    }
+
+    // ユニークなファイル名を生成する関数 (常にjpgとして保存)
+    private fun createUniqueFile(directory: File, baseName: String): File {
+        var counter = 0
+        var file = File(directory, "$baseName-$counter.jpg") // 1枚目から s-0.jpg にする
+        while (file.exists()) {
+            counter++
+            file = File(directory, "$baseName-$counter.jpg")
+        }
+        return file
     }
 }
