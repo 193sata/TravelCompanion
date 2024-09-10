@@ -1,6 +1,6 @@
 package com.example.culturegram
 
-import android.graphics.Camera
+//import android.graphics.Camera
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.culturegram.ui.theme.CultureGramTheme
-import com.google.ai.client.generativeai.common.shared.Content
+//import com.google.ai.client.generativeai.common.shared.Content
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument("heritageName") { defaultValue = "Unknown" })
                         ) { backStackEntry ->
                             val heritageName = backStackEntry.arguments?.getString("heritageName")
-                            val camera = Camera()
+                            val camera = CameraScreen()
                             camera.Content(heritageName ?: "Unknown", navController)   // CameraのContentにheritageNameとnavControllerを渡す
                         }
                     }

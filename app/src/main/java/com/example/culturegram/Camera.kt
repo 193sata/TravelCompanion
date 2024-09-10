@@ -35,7 +35,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import java.io.File
 
-class Camera {
+class CameraScreen {
 
     @Composable
     fun Content(s: String, navController: NavController) {
