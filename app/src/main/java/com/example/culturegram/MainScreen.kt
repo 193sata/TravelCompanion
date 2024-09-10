@@ -29,7 +29,7 @@ class MainScreen {
     @Composable
     fun Content(navController: NavController) {
         // メインコンテンツを動的に変更するための変数
-        val contentState = remember { mutableStateOf<@Composable () -> Unit>({ Text("Initial Content") }) }
+        val contentState = remember { mutableStateOf<@Composable () -> Unit>({ Map().Content(navController) }) }
 
         Column(
             modifier = Modifier
