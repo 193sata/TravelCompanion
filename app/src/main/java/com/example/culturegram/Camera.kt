@@ -129,7 +129,7 @@ class CameraScreen {
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(16.dp)
-                            .size(500.dp) // キャラクターのサイズを調整
+                            .size(100.dp) // キャラクターのサイズを調整 ryokochan: 500を推奨
                     ) {
                         Image(
                             painter = painterResource(id = selectedCharacter),
