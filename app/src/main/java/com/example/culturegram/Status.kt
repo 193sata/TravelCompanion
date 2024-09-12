@@ -78,10 +78,27 @@ class Status {
                 ) {
                     items(heritageList.size) { index ->
                         val heritage = heritageList[index]
+
+                        val latitudeStr = createLatitudeStr(heritage.latitude)
+                        println("latitudeStr")
+                        println(latitudeStr)
+                        // 経度の処理
+                        val longitudeStr = createLongitudeStr(heritage.longitude)
+
                         val imagePath = getSavedImagePath(context, heritage.name)
                             ?: "/storage/emulated/0/Android/data/com.example.culturegram/files/Pictures/${heritage.name}-0.jpg"
                         val imageFile = File(imagePath)
-
+                        // 緯度経度を文字列に変換し、小数点を除いて結合
+                        val latLongStr = "${latitudeStr.replace(".", "")}${longitudeStr.replace(".", "")}"
+                        val imageName = "heritage_$latLongStr"
+                        println("heritagename")
+                        println(heritage.name)
+                        println("緯度")
+                        println(heritage.latitude)
+                        println("経度")
+                        println(heritage.longitude)
+                        println("imageName")
+                        println(imageName)
                         Box(
                             modifier = Modifier
                                 .border(0.5.dp, Color.Black)
@@ -99,12 +116,27 @@ class Status {
                                     contentScale = ContentScale.Crop
                                 )
                             } else {
-                                Image(
-                                    painter = painterResource(id = R.drawable.no_image),
-                                    contentDescription = "No Image",
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
+                                val context = LocalContext.current
+                                val resId = context.resources.getIdentifier(imageName, "drawable", context.packageName)
+                                println("resId")
+                                println(resId)
+                                if (resId != 0) {
+                                    // drawableに指定の名前の画像が存在する場合
+                                    Image(
+                                        painter = painterResource(id = resId),
+                                        contentDescription = imageName,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    // 指定の名前の画像が存在しない場合はNo Imageを表示
+                                    Image(
+                                        painter = painterResource(id = R.drawable.no_image),
+                                        contentDescription = "No Image",
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
                             }
                         }
                     }
@@ -172,11 +204,18 @@ class Status {
                 )
             },
             content = { padding ->
+                val latitudeStr = createLatitudeStr(heritage.latitude)
+                val longitudeStr = createLongitudeStr(heritage.longitude)
+                // 緯度経度を文字列に変換し、小数点を除いて結合
+                val latLongStr = "${latitudeStr.replace(".", "")}${longitudeStr.replace(".", "")}"
+                val imageName = "heritage_$latLongStr"
+
                 // 保存された画像パスを取得
                 val imagePath = getSavedImagePath(LocalContext.current, heritage.name)
                     ?: "/storage/emulated/0/Android/data/com.example.culturegram/files/Pictures/${heritage.name}-0.jpg"
                 val imageFile = File(imagePath)
-
+                println("imagename")
+                println(imageName)
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -191,12 +230,27 @@ class Status {
                             contentScale = ContentScale.Crop
                         )
                     } else {
-                        Image(
-                            painter = painterResource(id = R.drawable.no_image),
-                            contentDescription = "No Image",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
+                        val context = LocalContext.current
+                        val resId = context.resources.getIdentifier(imageName, "drawable", context.packageName)
+                        println("resId")
+                        println(resId)
+                        if (resId != 0) {
+                            // drawableに指定の名前の画像が存在する場合
+                            Image(
+                                painter = painterResource(id = resId),
+                                contentDescription = imageName,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            // 指定の名前の画像が存在しない場合はNo Imageを表示
+                            Image(
+                                painter = painterResource(id = R.drawable.no_image),
+                                contentDescription = "No Image",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
                     }
                 }
             }
@@ -301,6 +355,39 @@ class Status {
         """.trimIndent()
         )
     }
+
+    private fun createLatitudeStr(latitude: Double): String {
+        val latitudeStr: String  = latitude.toString()
+        if (latitude.toString().contains(".")) {
+            val decimalPart = latitude.toString().split(".")[1]
+            // 小数点以下の桁数を確認し、3桁の場合にゼロを追加
+            if (decimalPart.length == 3) {
+                return latitudeStr + "0"
+            }
+            else {
+                return latitudeStr
+            }
+        }
+
+
+        return latitudeStr
+    }
+
+    private fun createLongitudeStr(longitude: Double): String {
+        val longitudeStr: String = longitude.toString()
+        if (longitude.toString().contains(".")) {
+            val decimalPart = longitude.toString().split(".")[1]
+            // 小数点以下の桁数を確認し、3桁の場合にゼロを追加
+            if (decimalPart.length == 3) {
+                return longitudeStr + "0"
+            } else {
+                return longitudeStr
+            }
+        }
+
+        return longitudeStr
+    }
+
 }
 
 // WorldHeritageデータクラス
