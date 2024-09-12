@@ -82,7 +82,7 @@ class Map {
             state = MarkerState(position = LatLng(currentLocation.latitude, currentLocation.longitude)),
             icon = createCustomMarker(Color(0xFF4A90E2)),  // 淡い青色のカスタムマーカー
             title = "現在地",
-            snippet = "現在地",
+            //snippet = "現在地",
             anchor = Offset(0.5f, 0.5f)  // アンカーをマーカーの中央に設定
           )
 
