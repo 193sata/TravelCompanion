@@ -1,51 +1,82 @@
 package com.example.culturegram
 
-//import android.graphics.Camera
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.culturegram.ui.theme.CultureGramTheme
-//import com.google.ai.client.generativeai.common.shared.Content
+import java.io.File
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             CultureGramTheme {
-                // ナビゲーションの設定
                 val navController = rememberNavController()
+                var selectedImage by remember { mutableStateOf<String?>(null) }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "main", // 最初に表示する画面をMainScreenに設定
+                        startDestination = "main",
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        // MainScreen
                         composable("main") {
-                            val mainScreen = MainScreen()
-                            mainScreen.Content(navController)  // MainScreenのContentを表示
+                            MainScreen().Content(navController)
                         }
-                        // Camera with heritageName as an argument
                         composable(
                             route = "camera/{heritageName}",
                             arguments = listOf(navArgument("heritageName") { defaultValue = "Unknown" })
                         ) { backStackEntry ->
                             val heritageName = backStackEntry.arguments?.getString("heritageName")
-                            val camera = CameraScreen()
-                            camera.Content(heritageName ?: "Unknown", navController)   // CameraのContentにheritageNameとnavControllerを渡す
+                            CameraScreen().Content(heritageName ?: "Unknown", navController)
+                        }
+                        composable("status") {
+                            Status().Content(navController)
+                        }
+                        composable(
+                            "edit/{heritageName}",
+                            arguments = listOf(navArgument("heritageName") { defaultValue = "Unknown" })
+                        ) { backStackEntry ->
+                            val heritageName = backStackEntry.arguments?.getString("heritageName") ?: ""
+                            val imageList = getImageListForHeritage(heritageName)
+                            EditScreen().Content(
+                                navController = navController,
+                                heritageName = heritageName,
+                                imageList = imageList
+                            ) { selectedImageFromEdit ->
+                                selectedImage = selectedImageFromEdit
+                                saveImagePath(applicationContext, heritageName, selectedImageFromEdit)
+                            }
+                        }
+                        composable("main?screen={screen}", arguments = listOf(navArgument("screen") { nullable = true })) { backStackEntry ->
+                            val startScreen = backStackEntry.arguments?.getString("screen")
+                            val mainScreen = MainScreen()
+                            mainScreen.Content(navController, startScreen)  // MainScreenに画面状態を渡す
                         }
                     }
                 }
             }
+        }
+    }
+
+    private fun getImageListForHeritage(heritageName: String): List<String> {
+        val basePath = "/storage/emulated/0/Android/data/com.example.culturegram/files/Pictures"
+        val imageDir = File(basePath)
+        val imageFiles = imageDir.listFiles { file -> file.name.startsWith(heritageName) && file.name.endsWith(".jpg") }
+
+        return if (imageFiles != null && imageFiles.isNotEmpty()) {
+            imageFiles.map { it.absolutePath }
+        } else {
+            listOf("$basePath/no_image.jpg")
         }
     }
 }

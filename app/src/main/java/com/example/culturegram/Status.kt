@@ -1,9 +1,9 @@
 package com.example.culturegram
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.exifinterface.media.ExifInterface
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,129 +12,124 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import android.widget.Toast
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.Canvas
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavHostController
 import java.io.File
 import java.io.IOException
 
 class Status {
 
     @Composable
-    fun Content() {
-        AchievementPage()
+    fun Content(navController: NavHostController) {
+        val context = LocalContext.current
+        AchievementPage(navController, context)
     }
 
     @Composable
-    fun AchievementPage() {
-        // CSVファイルから読み込んだデータ
+    fun AchievementPage(navController: NavHostController, context: Context) {
         val heritageList = loadOrCreateCsv()
-        // 達成度の更新を反映するために呼び出し
-        updateAchievementStatus(heritageList)
+        updateAchievementStatus(heritageList, context)
 
-        // 達成した数と全体数を計算
         val visitedCount = heritageList.count { it.visited }
         val totalCount = heritageList.size
         val achievementRatio = if (totalCount > 0) visitedCount.toFloat() / totalCount else 0f
 
-        val context = LocalContext.current
-        var selectedHeritage by remember { mutableStateOf<String?>(null) }
+        var selectedHeritage by remember { mutableStateOf<WorldHeritage?>(null) }
 
-        // UIレイアウト
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 16.dp)  // 上の余白を追加
-        ) {
-            // 達成度の表示 (ドーナツ型の円グラフを画面の1/3に収める)
-            Box(
-                contentAlignment = Alignment.Center,
+        if (selectedHeritage == null) {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)  // 余白を調整
-                    .height(150.dp)  // 高さを指定して円グラフが見切れないように
+                    .fillMaxSize()
+                    .padding(top = 16.dp)
             ) {
-                DonutChart(achievementRatio, visitedCount, totalCount)
-            }
+                // 達成度のドーナツ型グラフ
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .height(150.dp)
+                ) {
+                    DonutChart(achievementRatio, visitedCount, totalCount)
+                }
 
-            Spacer(modifier = Modifier.height(16.dp))  // グラフと画像の間に余白を追加
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // 遺産の画像をグリッドで表示
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),  // 3列のグリッド
-                contentPadding = PaddingValues(0.dp),  // 余白をなくす
-                modifier = Modifier
-                    .fillMaxSize()  // スクロールできるように最大サイズに設定
-            ) {
-                items(heritageList.size) { index ->
-                    val heritage = heritageList[index]
-                    val imagePath = "/storage/emulated/0/Android/data/com.example.culturegram/files/Pictures/${heritage.name}-0.jpg"
-                    val imageFile = File(imagePath)
+                // 画像一覧
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    contentPadding = PaddingValues(0.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(heritageList.size) { index ->
+                        val heritage = heritageList[index]
+                        val imagePath = getSavedImagePath(context, heritage.name)
+                            ?: "/storage/emulated/0/Android/data/com.example.culturegram/files/Pictures/${heritage.name}-0.jpg"
+                        val imageFile = File(imagePath)
 
-                    Box(
-                        modifier = Modifier
-                            .border(0.5.dp, Color.Black)  // 各画像の境界にのみ黒線を表示
-                            .aspectRatio(1f)  // 正方形の比率を強制する
-                            .clickable {
-                                selectedHeritage = heritage.name
-                                Toast.makeText(context, heritage.name, Toast.LENGTH_SHORT).show()
+                        Box(
+                            modifier = Modifier
+                                .border(0.5.dp, Color.Black)
+                                .aspectRatio(1f)
+                                .clickable {
+                                    selectedHeritage = heritage
+                                }
+                        ) {
+                            if (imageFile.exists()) {
+                                val bitmap = loadRotatedBitmap(imageFile)
+                                Image(
+                                    bitmap = bitmap.asImageBitmap(),
+                                    contentDescription = heritage.name,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.no_image),
+                                    contentDescription = "No Image",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
                             }
-                    ) {
-                        if (imageFile.exists()) {
-                            val bitmap = loadRotatedBitmap(imageFile)
-                            Image(
-                                bitmap = bitmap.asImageBitmap(),
-                                contentDescription = heritage.name,
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop  // 画像を正方形に切り取る
-                            )
-                        } else {
-                            Image(
-                                painter = painterResource(id = R.drawable.no_image),
-                                contentDescription = "No Image",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop  // No-imageも正方形に
-                            )
                         }
                     }
                 }
             }
-
-            // 遺産名を吹き出しで表示
-            selectedHeritage?.let {
-                Snackbar {
-                    Text(text = it)
-                }
-            }
+        } else {
+            EnlargedImageScreen(
+                heritage = selectedHeritage!!,
+                navController = navController,
+                onBackClick = { selectedHeritage = null }
+            )
         }
     }
 
-    // ドーナツ型円グラフを描画するコンポーザブル
     @Composable
     fun DonutChart(percentage: Float, visitedCount: Int, totalCount: Int) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(120.dp)  // 円グラフの大きさを小さめに設定
+            modifier = Modifier.size(120.dp)
         ) {
             Canvas(modifier = Modifier.size(120.dp)) {
-                // 背景円
                 drawCircle(
                     color = Color.LightGray,
                     style = Stroke(width = 15f)
                 )
-
-                // 達成度の円弧
                 drawArc(
                     color = Color.Green,
                     startAngle = -90f,
@@ -143,14 +138,69 @@ class Status {
                     style = Stroke(width = 15f, cap = StrokeCap.Round)
                 )
             }
-
-            // 中央に分数を表示
             Text(
                 text = "$visitedCount / $totalCount",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
         }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun EnlargedImageScreen(
+        heritage: WorldHeritage,
+        navController: NavHostController,
+        onBackClick: () -> Unit
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = heritage.name, fontSize = 20.sp) },
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            navController.navigate("edit/${heritage.name}")
+                        }) {
+                            Icon(imageVector = Icons.Filled.Edit, contentDescription = "編集")
+                        }
+                    }
+                )
+            },
+            content = { padding ->
+                // 保存された画像パスを取得
+                val imagePath = getSavedImagePath(LocalContext.current, heritage.name)
+                    ?: "/storage/emulated/0/Android/data/com.example.culturegram/files/Pictures/${heritage.name}-0.jpg"
+                val imageFile = File(imagePath)
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
+                    if (imageFile.exists()) {
+                        val bitmap = loadRotatedBitmap(imageFile)
+                        Image(
+                            bitmap = bitmap.asImageBitmap(),
+                            contentDescription = heritage.name,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.no_image),
+                            contentDescription = "No Image",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+            }
+        )
     }
 
     // EXIFデータに基づいて画像を回転させる関数
@@ -211,14 +261,13 @@ class Status {
     }
 
     // 達成度を更新する関数
-    private fun updateAchievementStatus(heritageList: List<WorldHeritage>) {
+    private fun updateAchievementStatus(heritageList: List<WorldHeritage>, context: Context) {
         heritageList.forEach { heritage ->
-            val imagePath = "/storage/emulated/0/Android/data/com.example.culturegram/files/Pictures/${heritage.name}-0.jpg"
-            val imageFile = File(imagePath)
-
-            // 画像が存在する場合、達成度を1にする
-            if (imageFile.exists()) {
+            val imagePath = getSavedImagePath(context, heritage.name)
+            if (imagePath != null && File(imagePath).exists()) {  // 画像が存在する場合にのみカウント
                 heritage.visited = true
+            } else {
+                heritage.visited = false  // 画像がない場合は未達成にする
             }
         }
     }
@@ -228,28 +277,28 @@ class Status {
         file.parentFile?.mkdirs()
         file.writeText(
             """
-            法隆寺地域の仏教建造物,34.6145,135.7356,0
-            姫路城,34.8394,134.6939,0
-            古都京都の文化財,35.0116,135.7681,0
-            白川郷・五箇山の合掌造り集落,36.2605,137.0468,0
-            原爆ドーム,34.3955,132.4536,0
-            厳島神社,34.2955,132.3197,0
-            古都奈良の文化財,34.6851,135.8048,0
-            日光の社寺,36.7197,139.6986,0
-            琉球王国のグスク及び関連遺産群,26.2173,127.7148,0
-            紀伊山地の霊場と参詣道,33.8711,135.7740,0
-            石見銀山遺跡とその文化的景観,35.1214,132.4622,0
-            平泉‐仏国土（浄土）を表す建築・庭園及び考古学的遺跡群‐,39.0015,141.1082,0
-            富士山‐信仰の対象と芸術の源泉‐,35.3606,138.7274,0
-            富岡製糸場と絹産業遺産群,36.2586,138.8894,0
-            明治日本の産業革命遺産,33.5904,130.4017,0
-            ル・コルビュジエの建築作品‐近代建築運動への顕著な貢献‐,35.6586,139.7454,0
-            「神宿る島」宗像・沖ノ島と関連遺産群,33.9180,130.5339,0
-            長崎と天草地方の潜伏キリシタン関連遺産,32.7503,129.8777,0
-            百舌鳥・古市古墳群‐古代日本の墳墓群‐,34.5565,135.4885,0
-            北海道・北東北の縄文遺跡群,43.6343,142.5451,0
-            佐渡島の金山,37.8034,138.3968,0
-            """.trimIndent()
+        法隆寺地域の仏教建造物,34.6145,135.7356,0
+        姫路城,34.8394,134.6939,0
+        古都京都の文化財,35.0116,135.7681,0
+        白川郷・五箇山の合掌造り集落,36.2605,137.0468,0
+        原爆ドーム,34.3955,132.4536,0
+        厳島神社,34.2955,132.3197,0
+        古都奈良の文化財,34.6851,135.8048,0
+        日光の社寺,36.7197,139.6986,0
+        琉球王国のグスク及び関連遺産群,26.2173,127.7148,0
+        紀伊山地の霊場と参詣道,33.8711,135.7740,0
+        石見銀山遺跡とその文化的景観,35.1214,132.4622,0
+        平泉‐仏国土（浄土）を表す建築・庭園及び考古学的遺跡群‐,39.0015,141.1082,0
+        富士山‐信仰の対象と芸術の源泉‐,35.3606,138.7274,0
+        富岡製糸場と絹産業遺産群,36.2586,138.8894,0
+        明治日本の産業革命遺産,33.5904,130.4017,0
+        ル・コルビュジエの建築作品‐近代建築運動への顕著な貢献‐,35.6586,139.7454,0
+        「神宿る島」宗像・沖ノ島と関連遺産群,33.9180,130.5339,0
+        長崎と天草地方の潜伏キリシタン関連遺産,32.7503,129.8777,0
+        百舌鳥・古市古墳群‐古代日本の墳墓群‐,34.5565,135.4885,0
+        北海道・北東北の縄文遺跡群,43.6343,142.5451,0
+        佐渡島の金山,37.8034,138.3968,0
+        """.trimIndent()
         )
     }
 }
@@ -259,5 +308,6 @@ data class WorldHeritage(
     val name: String,
     val latitude: Double,
     val longitude: Double,
-    var visited: Boolean
+    var visited: Boolean,
+    var imagePath: String = "" // 画像パスを保持する
 )
