@@ -99,11 +99,10 @@ class EditScreen {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // タイル状の画像一覧
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 100.dp),  // 横幅いっぱいに表示するためにminSizeを設定
-                        contentPadding = PaddingValues(4.dp),            // 画像周りに少し余白をつける
-                        modifier = Modifier.fillMaxSize()                // グリッドを最大サイズにする
+                        columns = GridCells.Fixed(3),   // 列数を固定して横幅いっぱいに表示
+                        contentPadding = PaddingValues(0.dp),  // 余白をなくす
+                        modifier = Modifier.fillMaxSize()  // グリッド全体を最大サイズに
                     ) {
                         items(imageList) { imagePath ->
                             val imageFile = File(imagePath)
@@ -111,7 +110,8 @@ class EditScreen {
                             Box(
                                 modifier = Modifier
                                     .border(0.5.dp, Color.Black)
-                                    .aspectRatio(1f)
+                                    .aspectRatio(1f)  // 正方形に保つ
+                                    .fillMaxWidth()   // 横幅いっぱいに広げる
                                     .clickable {
                                         selectedImage = imagePath  // 画像を選択
                                     }
@@ -121,10 +121,11 @@ class EditScreen {
                                     Image(
                                         bitmap = bitmap.asImageBitmap(),
                                         contentDescription = "選択画像",
-                                        modifier = Modifier.fillMaxSize(),  // 画像をタイルに合わせて拡大
+                                        modifier = Modifier.fillMaxSize(),  // 画像をタイル全体にフィット
                                         contentScale = ContentScale.Crop   // 画像をタイルにフィットさせる
                                     )
                                 } else {
+                                    // デフォルト画像を表示
                                     Image(
                                         painter = painterResource(id = R.drawable.no_image),
                                         contentDescription = "No Image",
@@ -135,13 +136,14 @@ class EditScreen {
                             }
                         }
 
-                        // デフォルト画像がない場合に1つだけNO-imgを表示
+                        // 画像リストが少ない場合、NO-imgを1つ表示
                         if (imageList.isEmpty()) {
                             item {
                                 Box(
                                     modifier = Modifier
                                         .border(0.5.dp, Color.Black)
                                         .aspectRatio(1f)
+                                        .fillMaxWidth()  // 横幅いっぱいに広げる
                                 ) {
                                     Image(
                                         painter = painterResource(id = R.drawable.no_image),
