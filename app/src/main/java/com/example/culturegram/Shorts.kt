@@ -1,10 +1,14 @@
 package com.example.culturegram
 
 import GetImages
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
@@ -18,10 +22,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import kotlin.math.abs
+
 
 class Shorts {
     @Composable
@@ -31,8 +39,6 @@ class Shorts {
         // GetImagesクラスのContentメソッドを呼び出して画像のリストを取得
         val getImages = GetImages()
         val images = getImages.Content(context)
-        println("images")
-        println(images)
 
         // 表示する画像が存在しない場合に対応
         if (images.isEmpty()) {
@@ -46,7 +52,11 @@ class Shorts {
         var nextIndex by remember { mutableStateOf((currentIndex + 1) % images.size) }
         var dragOffset by remember { mutableStateOf(0f) }
         var directionLocked by remember { mutableStateOf(false) }
+        var isTextVisible by remember { mutableStateOf(false) }  // テキストの表示状態を管理
         val screenHeight = 800f  // 仮の画面高さ
+
+        // アニメーション化された透明度 (0fから1fまで)
+        val alpha by animateFloatAsState(targetValue = if (isTextVisible) 1f else 0f)
 
         Box(
             modifier = Modifier
@@ -75,36 +85,76 @@ class Shorts {
                             }
                         }
                     )
+                }
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            // タップされたときにテキストの表示状態をトグルする
+                            isTextVisible = !isTextVisible
+                        }
+                    )
                 },
             contentAlignment = Alignment.Center
         ) {
-            // 現在の画像を表示
-            Image(
-                painter = rememberImagePainter(data = images[currentIndex]),  // 画像パスを指定
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(16.dp))  // 4つ角を16dpの丸みでクリップ
-                    .graphicsLayer(
-                        translationY = dragOffset,  // 指の動きに合わせて画像を移動
-                        alpha = 1f - abs(dragOffset) / screenHeight  // スクロールで徐々にフェードアウト
-                    ),
-                contentScale = ContentScale.Crop
-            )
+            // 現在の画像を表示し、画像名を下部に表示
+            Box {
+                Image(
+                    painter = rememberImagePainter(data = images[currentIndex]),  // 画像パスを指定
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(16.dp))  // 4つ角を16dpの丸みでクリップ
+                        .graphicsLayer(
+                            translationY = dragOffset,  // 指の動きに合わせて画像を移動
+                            alpha = 1f - abs(dragOffset) / screenHeight  // スクロールで徐々にフェードアウト
+                        ),
+                    contentScale = ContentScale.Crop
+                )
+                // フェードイン・アウトするテキスト
+                if (alpha > 0f) {
+                    Text(
+                        text = "Image ${currentIndex + 1}",  // 画像名 (ここでは番号を表示)
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(8.dp)  // テキストの周りにパディングを追加
+                            .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(8.dp))  // 半透明の黒い背景と角丸
+                            .padding(8.dp)  // 背景内のテキストに追加パディング
+                            .alpha(alpha),  // フェードイン・アウトのための透明度
+                        color = Color.White,  // 白い文字色
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
 
-            // 次の画像を表示
-            Image(
-                painter = rememberImagePainter(data = images[nextIndex]),  // 画像パスを指定
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(16.dp))  // 次の画像も4つ角を16dpの丸みでクリップ
-                    .graphicsLayer(
-                        translationY = if (dragOffset > 0) dragOffset - screenHeight else dragOffset + screenHeight,  // 新しい画像を画面外から移動
-                        alpha = abs(dragOffset) / screenHeight  // スクロールで徐々にフェードイン
-                    ),
-                contentScale = ContentScale.Crop
-            )
+            // 次の画像を表示し、画像名を下部に表示
+            Box {
+                Image(
+                    painter = rememberImagePainter(data = images[nextIndex]),  // 画像パスを指定
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(16.dp))  // 次の画像も4つ角を16dpの丸みでクリップ
+                        .graphicsLayer(
+                            translationY = if (dragOffset > 0) dragOffset - screenHeight else dragOffset + screenHeight,  // 新しい画像を画面外から移動
+                            alpha = abs(dragOffset) / screenHeight  // スクロールで徐々にフェードイン
+                        ),
+                    contentScale = ContentScale.Crop
+                )
+                // フェードイン・アウトするテキスト
+                if (alpha > 0f) {
+                    Text(
+                        text = "Image ${nextIndex + 1}",  // 次の画像の名前 (番号)
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(8.dp)
+                            .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(8.dp))  // 半透明の黒い背景と角丸
+                            .padding(8.dp)
+                            .alpha(alpha),  // フェードイン・アウトのための透明度
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }
