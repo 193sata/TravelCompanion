@@ -89,5 +89,4 @@ class MapPins {
             e.printStackTrace()
         }
     }
-
 }
