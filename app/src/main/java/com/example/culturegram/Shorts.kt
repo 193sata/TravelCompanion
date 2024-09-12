@@ -52,7 +52,7 @@ class Shorts {
         var nextIndex by remember { mutableStateOf((currentIndex + 1) % images.size) }
         var dragOffset by remember { mutableStateOf(0f) }
         var directionLocked by remember { mutableStateOf(false) }
-        var isTextVisible by remember { mutableStateOf(false) }  // テキストの表示状態を管理
+        var isTextVisible by remember { mutableStateOf(true) }  // 初期状態でテキストを表示
         val screenHeight = 800f  // 仮の画面高さ
 
         // アニメーション化された透明度 (0fから1fまで)
@@ -71,6 +71,7 @@ class Shorts {
                             }
                             dragOffset = 0f  // オフセットをリセット
                             directionLocked = false  // 次のドラッグに備えて方向をリセット
+                            isTextVisible = true  // 画像切り替え後に再度テキストを表示
                         },
                         onDrag = { _, dragAmount ->
                             dragOffset += dragAmount.y  // ドラッグ量をオフセットに反映
@@ -99,7 +100,7 @@ class Shorts {
             // 現在の画像を表示し、画像名を下部に表示
             Box {
                 Image(
-                    painter = rememberImagePainter(data = images[currentIndex]),  // 画像パスを指定
+                    painter = rememberImagePainter(data = images[currentIndex].first),  // 画像パスを指定
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
@@ -113,7 +114,7 @@ class Shorts {
                 // フェードイン・アウトするテキスト
                 if (alpha > 0f) {
                     Text(
-                        text = "Image ${currentIndex + 1}",  // 画像名 (ここでは番号を表示)
+                        text = images[currentIndex].second,  // 画像名
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .padding(8.dp)  // テキストの周りにパディングを追加
@@ -126,10 +127,10 @@ class Shorts {
                 }
             }
 
-            // 次の画像を表示し、画像名を下部に表示
+            // 次の画像を表示
             Box {
                 Image(
-                    painter = rememberImagePainter(data = images[nextIndex]),  // 画像パスを指定
+                    painter = rememberImagePainter(data = images[nextIndex].first),  // 画像パスを指定
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
@@ -140,20 +141,6 @@ class Shorts {
                         ),
                     contentScale = ContentScale.Crop
                 )
-                // フェードイン・アウトするテキスト
-                if (alpha > 0f) {
-                    Text(
-                        text = "Image ${nextIndex + 1}",  // 次の画像の名前 (番号)
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(8.dp)
-                            .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(8.dp))  // 半透明の黒い背景と角丸
-                            .padding(8.dp)
-                            .alpha(alpha),  // フェードイン・アウトのための透明度
-                        color = Color.White,
-                        textAlign = TextAlign.Center
-                    )
-                }
             }
         }
     }
