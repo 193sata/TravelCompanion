@@ -33,8 +33,8 @@ import java.io.IOException
 
 class Map {
   var currentLocation by mutableStateOf(LatLng(32.81449335495487, 130.72729505562057)) // デフォルトの位置（熊本）
-  private var heritages: MutableList<Heritage> = mutableListOf()
-  private var heritagesInside: MutableList<Heritage> = mutableListOf()
+  private var heritages: MutableList<SakeBrewery> = mutableListOf()
+  private var heritagesInside: MutableList<SakeBrewery> = mutableListOf()
   private var mapPins = MapPins()
   private var allowedR = 100000.0
 
@@ -42,7 +42,7 @@ class Map {
   fun Content(navController: NavController) {
     val context = LocalContext.current
     val gps = remember { GPS(context) } // GPSクラスを記憶する
-    var selectedHeritage by remember { mutableStateOf<Heritage?>(null) } // 選択された遺産を保存する状態
+    var selectedHeritage by remember { mutableStateOf<SakeBrewery?>(null) } // 選択された遺産を保存する状態
     var isMapLoaded by remember { mutableStateOf(false) }  // マップがロードされたかを追跡するためのフラグ
 
     // GPSから位置情報を取得する（非同期）
