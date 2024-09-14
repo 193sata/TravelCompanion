@@ -10,6 +10,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 class MapPins {
     private var heritages: MutableList<SakeBrewery> = mutableListOf()
+    private var sakeBrewerys: MutableList<SakeBrewery> = mutableListOf()
     private var userLatitude: Double = 0.0
     private var userLongitude: Double = 0.0
 
