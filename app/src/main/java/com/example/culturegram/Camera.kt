@@ -57,7 +57,7 @@ class CameraScreen {
             R.drawable.spanyan4,
             R.drawable.spanyan5,
             R.drawable.spanyan6,
-            R.drawable.ryokochan
+//            R.drawable.ryokochan
         )
         //val selectedCharacter = remember { characterResIds.random() }
 
