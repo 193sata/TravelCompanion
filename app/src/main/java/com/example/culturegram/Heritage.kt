@@ -1,6 +1,6 @@
 package com.example.culturegram
 
-class Heritage (
+class SakeBrewery (
     val name: String,
     val latitude: Double,
     val longitude: Double,
