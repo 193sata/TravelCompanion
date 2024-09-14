@@ -49,9 +49,9 @@ class Status {
         val totalCount = heritageList.size
         val achievementRatio = if (totalCount > 0) visitedCount.toFloat() / totalCount else 0f
 
-        var selectedHeritage by remember { mutableStateOf<WorldHeritage?>(null) }
+        var sakeBrew by remember { mutableStateOf<SakeBrew?>(null) }
 
-        if (selectedHeritage == null) {
+        if (sakeBrew == null) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -104,7 +104,7 @@ class Status {
                                 .border(0.5.dp, Color.Black)
                                 .aspectRatio(1f)
                                 .clickable {
-                                    selectedHeritage = heritage
+                                    sakeBrew = heritage
                                 }
                         ) {
                             if (imageFile.exists()) {
@@ -144,9 +144,9 @@ class Status {
             }
         } else {
             EnlargedImageScreen(
-                heritage = selectedHeritage!!,
+                heritage = sakeBrew!!,
                 navController = navController,
-                onBackClick = { selectedHeritage = null }
+                onBackClick = { sakeBrew = null }
             )
         }
     }
@@ -181,7 +181,7 @@ class Status {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun EnlargedImageScreen(
-        heritage: WorldHeritage,
+        heritage: SakeBrew,
         navController: NavHostController,
         onBackClick: () -> Unit
     ) {
@@ -288,7 +288,7 @@ class Status {
     }
 
     // CSVを読み込むか、なければ作成する関数
-    private fun loadOrCreateCsv(): List<WorldHeritage> {
+    private fun loadOrCreateCsv(): List<SakeBrew> {
         val filePath = "/storage/emulated/0/Android/data/com.example.culturegram/files/csv/heritages.csv"
         val csvFile = File(filePath)
 
@@ -297,7 +297,7 @@ class Status {
             createCsv(csvFile)
         }
 
-        val heritageList = mutableListOf<WorldHeritage>()
+        val heritageList = mutableListOf<SakeBrew>()
         if (csvFile.exists()) {
             csvFile.forEachLine { line ->
                 val parts = line.split(",")
@@ -306,7 +306,7 @@ class Status {
                     val latitude = parts[1].toDoubleOrNull() ?: 0.0
                     val longitude = parts[2].toDoubleOrNull() ?: 0.0
                     val visited = parts[3].toIntOrNull() == 1
-                    heritageList.add(WorldHeritage(name, latitude, longitude, visited))
+                    heritageList.add(SakeBrew(name, latitude, longitude, visited))
                 }
             }
         }
@@ -315,7 +315,7 @@ class Status {
     }
 
     // 達成度を更新する関数
-    private fun updateAchievementStatus(heritageList: List<WorldHeritage>, context: Context) {
+    private fun updateAchievementStatus(heritageList: List<SakeBrew>, context: Context) {
         heritageList.forEach { heritage ->
             val imagePath = getSavedImagePath(context, heritage.name)
             if (imagePath != null && File(imagePath).exists()) {  // 画像が存在する場合にのみカウント
@@ -391,7 +391,7 @@ class Status {
 }
 
 // WorldHeritageデータクラス
-data class WorldHeritage(
+data class SakeBrew(
     val name: String,
     val latitude: Double,
     val longitude: Double,
