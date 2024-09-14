@@ -1,7 +1,7 @@
 package com.example.culturegram
 
 import android.content.Context
-import android.util.Log
+import com.example.culturegram.com.example.culturegram.SakeBrewery
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlin.math.atan2
@@ -13,7 +13,8 @@ class MapPins {
     private var userLatitude: Double = 0.0
     private var userLongitude: Double = 0.0
 
-    // 地球の半径 (メートル)
+    // 地球の半径
+    // (メートル)
     private val earthRadius = 6371000.0
 
     fun setUserPosition(tmpUserLatitude: Double, tmpUserLongitude: Double){
@@ -64,13 +65,15 @@ class MapPins {
                 val longitude = tokens.getOrNull(longitudeIndex)?.toDoubleOrNull()
                 val yet = tokens.getOrNull(yetIndex)?.toIntOrNull()
 
-                heritages.add(SakeBrewery(  // Changed to SakeBrewery
+                heritages.add(
+                    SakeBrewery(  // Changed to SakeBrewery
                     name.toString(),
                     latitude.toString().toDouble(),
                     longitude.toString().toDouble(),
                     calculateDistance(latitude.toString().toDouble(), longitude.toString().toDouble(), userLatitude, userLongitude),
                     yet.toString().toInt()
-                ))
+                )
+                )
             }
             reader.close()
         } catch (e: Exception) {
